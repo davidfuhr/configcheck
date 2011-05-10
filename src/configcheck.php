@@ -114,7 +114,19 @@ $settingValidators = array(
 	new SettingValidator(new IniSetting('iconv.internal_encoding'), 'UTF-8'),
 	new SettingValidator(new IniSetting('mbstring.internal_encoding'), 'UTF-8'),
 
+    // db server character set
     new SettingValidator(new MysqlSetting('character_set_server', $pdo), 'utf8'),
+    new SettingValidator(new MysqlSetting('character_set_database', $pdo), 'utf8'),
+    new SettingValidator(new MysqlSetting('character_set_connection', $pdo), 'utf8'),
+    new SettingValidator(new MysqlSetting('character_set_client', $pdo), 'utf8'),
+    new SettingValidator(new MysqlSetting('character_set_results', $pdo), 'utf8'),
+    new SettingValidator(new MysqlSetting('character_set_system', $pdo), 'utf8'),
+    new SettingValidator(new MysqlSetting('character_set_filesystem', $pdo), 'binary'),
+
+    // db server collation
+    new SettingValidator(new MysqlSetting('collation_server', $pdo), 'utf8_general_ci'),
+    new SettingValidator(new MysqlSetting('collation_database', $pdo), 'utf8_general_ci'),
+    new SettingValidator(new MysqlSetting('collation_connection', $pdo), 'utf8_general_ci'),
 );
 $valueFormatter = new StringFormatter();
 
