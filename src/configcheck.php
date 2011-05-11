@@ -1,5 +1,24 @@
 <?php
 
+if (isset($_GET['i'])) {
+    header("Content-Type: image/png");
+
+    $im = imagecreatetruecolor(16, 16);
+
+    $green = imagecolorallocate($im, 0, 143, 115);
+    $red = imagecolorallocate($im, 255, 0, 0);
+    $white = imagecolorallocate($im, 255, 255, 255);
+
+    imagefill($im, 0, 0, $white);
+    imagealphablending($im, true);
+
+    imagefilledellipse($im, 8, 8, 14, 14, $green);
+
+    imagepng($im);
+    imagedestroy($im);
+    exit;
+}
+
 require 'Setting.php';
 require 'IniSetting.php';
 require 'MysqlSetting.php';
