@@ -1,7 +1,8 @@
 <?php
 
 require 'Setting.php';
-require 'IniSetting.php';
+require 'PhpIniSetting.php';
+require 'PhpFlagSetting.php';
 require 'MysqlSetting.php';
 
 class SettingValidator
@@ -14,17 +15,17 @@ class SettingValidator
         $this->setting = $setting;
         $this->expectedValue = $expectedValue;
     }
-    
+
     public function isValid()
     {
         return $this->expectedValue === $this->setting->getValue();
     }
-    
+
     public function getSetting()
     {
         return $this->setting;
     }
-    
+
     public function getExpectedValue()
     {
         return $this->expectedValue;
@@ -44,7 +45,7 @@ class StringFormatter
         if (is_bool($value)) {
             $value = $value ? 'TRUE' : 'FALSE';
         }
-        
+
         return $value;
     }
 }
@@ -54,15 +55,17 @@ $pdo = new PDO('mysql:host=127.0.0.1', 'root', '');
 // init settings
 $settingValidators = array(
     // production
-    new SettingValidator(new IniSetting('display_errors'), ''),
-    new SettingValidator(new IniSetting('display_startup_errors'), ''),
+    new SettingValidator(new PhpFlagSetting('display_errors'), false),
+    new SettingValidator(new PhpFlagSetting('display_startup_errors'), false),
+    new SettingValidator(new PhpFlagSetting('log_errors'), true),
     // general and security
-    new SettingValidator(new IniSetting('register_globals'), ''),
-    new SettingValidator(new IniSetting('magic_quotes_gpc'), ''),
+    new SettingValidator(new PhpFlagSetting('register_globals'), false),
+    new SettingValidator(new PhpFlagSetting('magic_quotes_gpc'), false),
+    new SettingValidator(new PhpFlagSetting('short_open_tag'), false),
     // localization
-    new SettingValidator(new IniSetting('iconv.internal_encoding'), 'UTF-8'),
-    new SettingValidator(new IniSetting('mbstring.internal_encoding'), 'UTF-8'),
-
+    new SettingValidator(new PhpIniSetting('iconv.internal_encoding'), 'UTF-8'),
+    new SettingValidator(new PhpIniSetting('mbstring.internal_encoding'), 'UTF-8'),
+    new SettingValidator(new PhpIniSetting('date.timezone'), 'UTC'),
     // db server character set
     new SettingValidator(new MysqlSetting('character_set_server', $pdo), 'utf8'),
     new SettingValidator(new MysqlSetting('character_set_database', $pdo), 'utf8'),
@@ -71,11 +74,14 @@ $settingValidators = array(
     new SettingValidator(new MysqlSetting('character_set_results', $pdo), 'utf8'),
     new SettingValidator(new MysqlSetting('character_set_system', $pdo), 'utf8'),
     new SettingValidator(new MysqlSetting('character_set_filesystem', $pdo), 'binary'),
-
     // db server collation
-    new SettingValidator(new MysqlSetting('collation_server', $pdo), 'utf8_general_ci'),
-    new SettingValidator(new MysqlSetting('collation_database', $pdo), 'utf8_general_ci'),
-    new SettingValidator(new MysqlSetting('collation_connection', $pdo), 'utf8_general_ci'),
+    new SettingValidator(new MysqlSetting('collation_server', $pdo), 'utf8_unicode_ci'),
+    new SettingValidator(new MysqlSetting('collation_database', $pdo), 'utf8_unicode_ci'),
+    new SettingValidator(new MysqlSetting('collation_connection', $pdo), 'utf8_unicode_ci'),
+    // db server time zone
+    new SettingValidator(new MysqlSetting('time_zone', $pdo), 'UTC'),
+    // sql mode
+    new SettingValidator(new MysqlSetting('sql_mode', $pdo), 'TRADITIONAL'),
 );
 $valueFormatter = new StringFormatter();
 
@@ -95,23 +101,41 @@ foreach ($settingValidators as $settingValidator) {
 
 
 // start output
-?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+?><!DOCTYPE html>
 <html>
 <head>
     <title>configcheck</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
 </head>
 <body>
-<dl>
-<?php foreach ($output as $settingOutput) : ?>
-    <dt><?php echo htmlspecialchars($settingOutput['name']) ?></dt>
-    <dd style="color:<?php echo $settingOutput['is_valid'] ? 'green' : 'red' ?>">
-        <div><?php echo htmlspecialchars($settingOutput['value']) ?></div>
-        <?php if (!$settingOutput['is_valid']) : ?>
-        <div>Expected value is <?php echo htmlspecialchars($settingOutput['expected_value']); ?></div>
-        <?php endif; ?>
-    </dd>
-<?php endforeach; ?>
+<div class="container">
+<dl class="dl-horizontal">
+    <?php foreach ($output as $settingOutput) : ?>
+        <dt><?php echo htmlspecialchars($settingOutput['name']) ?></dt>
+        <dd style="color:<?php echo $settingOutput['is_valid'] ? 'green' : 'red' ?>">
+            <?php echo htmlspecialchars($settingOutput['value']) ?>
+            <span class="glyphicon glyphicon-<?php if ($settingOutput['is_valid']): ?>ok<?php else: ?>remove<?php endif; ?>"></span>
+            <br />
+            <?php if (!$settingOutput['is_valid']): ?>
+                Recommended value is <?php echo htmlspecialchars($settingOutput['expected_value']); ?>
+            <?php endif; ?>
+        </dd>
+    <?php endforeach; ?>
 </dl>
+</div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://code.jquery.com/jquery.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
 </body>
 </html>
+
 

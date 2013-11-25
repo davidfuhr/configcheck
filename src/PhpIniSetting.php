@@ -1,12 +1,12 @@
 <?php
 
-class IniSetting implements Setting
+class PhpIniSetting implements Setting
 {
     /**
      * @var string
      */
     private $name;
-    
+
     /**
      * @var string $name
      */
@@ -14,7 +14,7 @@ class IniSetting implements Setting
     {
         $this->name = (string) $name;
     }
-    
+
     /**
      * @return string
      */
@@ -22,7 +22,7 @@ class IniSetting implements Setting
     {
         return $this->name;
     }
-    
+
     /**
      * @return scalar
      */
