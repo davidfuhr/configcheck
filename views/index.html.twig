@@ -25,19 +25,19 @@
         <h1>Config Check</h1>
     </div>
 
-    <dl class="dl-horizontal">
-        {% for settingOutput in output %}
-            <dt>{{ settingOutput.name }}</dt>
-            <dd style="color: {% if settingOutput.is_valid %}green{% else %}red{% endif %}">
-                {{ settingOutput.value }}
-                <span class="glyphicon glyphicon-{% if settingOutput.is_valid %}ok{% else %}remove{% endif %}"></span>
-                <br/>
-                {% if not settingOutput.is_valid %}
-                    Recommended value is {{ settingOutput.expected_value }}
-                {% endif %}
-            </dd>
-        {% endfor %}
-    </dl>
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Configuration</h2>
+
+            {% include 'config.html.twig' with {'output': phpConfigOutput} %}
+        </div>
+
+        <div class="col-md-6">
+            <h2>Required Functions</h2>
+
+            {% include 'config.html.twig' with {'output': phpFunctionOutput} %}
+        </div>
+    </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>

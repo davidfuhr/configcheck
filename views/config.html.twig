@@ -1,0 +1,13 @@
+<dl class="dl-horizontal">
+    {% for settingOutput in output %}
+        <dt>{{ settingOutput.name }}</dt>
+        <dd style="color: {% if settingOutput.is_valid %}green{% else %}red{% endif %}">
+            {{ settingOutput.value }}
+            <span class="glyphicon glyphicon-{% if settingOutput.is_valid %}ok{% else %}remove{% endif %}"></span>
+            <br/>
+            {% if not settingOutput.is_valid %}
+                Recommended value is {{ settingOutput.expected_value }}
+            {% endif %}
+        </dd>
+    {% endfor %}
+</dl>

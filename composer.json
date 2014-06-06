@@ -13,6 +13,7 @@
         "php": ">=5.3.23",
 
         "silex/silex": "~1.2",
+        "symfony/yaml": "*",
         "twig/twig": ">=1.8,<2.0-dev"
     },
     "autoload": {

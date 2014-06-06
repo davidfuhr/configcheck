@@ -1,0 +1,63 @@
+mysql_variable:
+    - [character_set_server, utf8]
+    - [character_set_database, utf8]
+    - [character_set_connection, utf8]
+    - [character_set_client, utf8]
+    - [character_set_results, utf8]
+    - [character_set_system, utf8]
+    - [character_set_filesystem, binary]
+    - [collation_server, utf8_unicode_ci]
+    - [collation_database, utf8_unicode_ci]
+    - [collation_connection, utf8_unicode_ci]
+    - [time_zone, UTC]
+    - [sql_mode, TRADITIONAL]
+php_function:
+    - apache_request_headers
+
+    - imagealphablending
+    - imagecolorallocate
+    - imagecolorallocatealpha
+    - imagecolordeallocate
+    - imagecolorexactalpha
+    - imagecolortransparent
+    - imagecopy
+    - imagecopyresampled
+    - imagecreate
+    - imagecreatefromgif
+    - imagecreatefromjpeg
+    - imagecreatefrompng
+    - imagecreatefromstring
+    - imagecreatefromxbm
+    - imagecreatetruecolor
+    - imagedestroy
+    - imagefill
+    - imagefilledellipse
+    - imagegif
+    - imagejpeg
+    - imageline
+    - imagepng
+    - imagesavealpha
+    - imagesetpixel
+    - imagesx
+    - imagesy
+    - imagettftext
+
+    - ssh2_auth_pubkey_file
+    - ssh2_connect
+    - ssh2_sftp
+
+    - newrelic_notice_error
+
+    - opcache_get_configuration
+    - opcache_get_status
+php_ini_flag:
+    - [display_errors, false]
+    - [display_startup_errors, false]
+    - [log_errors, true]
+    - [register_globals, false]
+    - [magic_quotes_gpc, false]
+    - [short_open_tag, false]
+php_ini_value:
+    - [iconv.internal_encoding, utf-8]
+    - [mbstring.internal_encoding, utf-8]
+    - [date.timezone, utc]

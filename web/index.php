@@ -2,11 +2,12 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Knid\Configcheck\MysqlSetting;
+use Knid\Configcheck\PhpFunction;
 use Knid\Configcheck\PhpIniFlag;
 use Knid\Configcheck\PhpIniValue;
 use Knid\Configcheck\SettingValidator;
 use Knid\Configcheck\StringFormatter;
+use Knid\Configcheck\ValidationProcessor;
 
 $app = new Silex\Application();
 
@@ -20,55 +21,42 @@ $app->register(
 
 $app->get(
     '/', function () use ($app) {
-        //$pdo = new PDO('mysql:host=127.0.0.1', 'root', '');
+        $settingValidators = array();
 
-        // init settings
-        $settingValidators = array(
-            // production
-            new SettingValidator(new PhpIniFlag('display_errors'), false),
-            new SettingValidator(new PhpIniFlag('display_startup_errors'), false),
-            new SettingValidator(new PhpIniFlag('log_errors'), true),
-            // general and security
-            new SettingValidator(new PhpIniFlag('register_globals'), false),
-            new SettingValidator(new PhpIniFlag('magic_quotes_gpc'), false),
-            new SettingValidator(new PhpIniFlag('short_open_tag'), false),
-            // localization
-            new SettingValidator(new PhpIniValue('iconv.internal_encoding'), 'UTF-8'),
-            new SettingValidator(new PhpIniValue('mbstring.internal_encoding'), 'UTF-8'),
-            new SettingValidator(new PhpIniValue('date.timezone'), 'UTC'),
-            /*
-            // db server character set
-            new SettingValidator(new MysqlSetting('character_set_server', $pdo), 'utf8'),
-            new SettingValidator(new MysqlSetting('character_set_database', $pdo), 'utf8'),
-            new SettingValidator(new MysqlSetting('character_set_connection', $pdo), 'utf8'),
-            new SettingValidator(new MysqlSetting('character_set_client', $pdo), 'utf8'),
-            new SettingValidator(new MysqlSetting('character_set_results', $pdo), 'utf8'),
-            new SettingValidator(new MysqlSetting('character_set_system', $pdo), 'utf8'),
-            new SettingValidator(new MysqlSetting('character_set_filesystem', $pdo), 'binary'),
-            // db server collation
-            new SettingValidator(new MysqlSetting('collation_server', $pdo), 'utf8_unicode_ci'),
-            new SettingValidator(new MysqlSetting('collation_database', $pdo), 'utf8_unicode_ci'),
-            new SettingValidator(new MysqlSetting('collation_connection', $pdo), 'utf8_unicode_ci'),
-            // db server time zone
-            new SettingValidator(new MysqlSetting('time_zone', $pdo), 'UTC'),
-            // sql mode
-            new SettingValidator(new MysqlSetting('sql_mode', $pdo), 'TRADITIONAL'),
-            */
-        );
-        $valueFormatter = new StringFormatter();
+        $yaml = new \Symfony\Component\Yaml\Parser();
+        $reqs = $yaml->parse(file_get_contents(__DIR__ . '/../etc/requirements.yml'));
 
-        // process settings
-        $output = array();
-        foreach ($settingValidators as $settingValidator) {
-            $output[] = array(
-                'name'           => $settingValidator->getSetting()->getName(),
-                'value'          => $valueFormatter->formatValue($settingValidator->getSetting()->getValue()),
-                'is_valid'       => $settingValidator->isValid(),
-                'expected_value' => $valueFormatter->formatValue($settingValidator->getExpectedValue()),
-            );
+        if (array_key_exists('php_ini_flag', $reqs)) {
+            foreach ($reqs['php_ini_flag'] as $req) {
+                list($name, $value) = $req;
+                $settingValidators[] = new SettingValidator(new PhpIniFlag($name), $value);
+            }
         }
 
-        return $app['twig']->render('index.html.twig', array('output' => $output));
+        if (array_key_exists('php_ini_value', $reqs)) {
+            foreach ($reqs['php_ini_value'] as $req) {
+                list($name, $value) = $req;
+                $settingValidators[] = new SettingValidator(new PhpIniValue($name), $value);
+            }
+        }
+
+        $phpFunctionValidators = array();
+        if (array_key_exists('php_function', $reqs)) {
+            foreach ($reqs['php_function'] as $req) {
+                $phpFunctionValidators[] = new SettingValidator(new PhpFunction($req), true);
+            }
+        }
+
+        $processor = new ValidationProcessor();
+        $valueFormatter = new StringFormatter();
+
+        $configOutput = $processor->process($settingValidators, $valueFormatter);
+        $phpFunctionOutput = $processor->process($phpFunctionValidators, $valueFormatter);
+
+        return $app['twig']->render('index.html.twig', array(
+                'phpConfigOutput' => $configOutput,
+                'phpFunctionOutput' => $phpFunctionOutput,
+            ));
     }
 );
 
