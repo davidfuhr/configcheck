@@ -1,6 +1,8 @@
 <?php
 
-class PhpIniSetting implements Setting
+namespace Knid\Configcheck;
+
+class PhpIniValue implements Setting
 {
     /**
      * @var string

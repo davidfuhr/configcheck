@@ -1,6 +1,8 @@
 <?php
 
-class PhpFlagSetting extends PhpIniSetting
+namespace Knid\Configcheck;
+
+class PhpIniFlag extends PhpIniValue
 {
     public function getValue()
     {

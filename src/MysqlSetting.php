@@ -1,12 +1,14 @@
 <?php
 
+namespace Knid\Configcheck;
+
 class MysqlSetting implements Setting
 {
     /**
      * @var string
      */
     private $name;
-    
+
     /**
      * @var PDO
      */
